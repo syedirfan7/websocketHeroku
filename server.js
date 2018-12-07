@@ -17,6 +17,8 @@ wss.on('connection', (ws) => {
         message = JSON.parse(message);
         if (message.type === "name") {
             ws.personName = message.data;
+            console.log(ws.personName +"  conected");
+            
             return;
         }
 
@@ -33,7 +35,7 @@ wss.on('connection', (ws) => {
         })
         // ws.send("From Server"+message);
     });
-  ws.on('close', () => console.log('Client disconnected'));
+  ws.on('close', () => console.log(  ws.personName+' disconnected'));
 });
 function appendZero(val) {
     if (val < 10) {
