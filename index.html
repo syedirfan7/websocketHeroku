@@ -1,15 +1,158 @@
 <html>
+
 <head>
-    <script src="chat.js"></script>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+    crossorigin="anonymous">
+
+  <style>
+    .header {
+      text-align: center;
+    }
+    #output {
+      overflow-y: auto; height: 400px;
+    }
+
+    #output::-webkit-scrollbar { 
+    display: none; 
+}
+.chatBody{
+      margin: 0 auto;
+      width: 300px;
+      border:2px solid #00000052;
+      border-radius: 12px;
+      padding: 10px;
+      background-color: mintcream;
+}
+    #chatControls {
+      margin: 10px auto;
+      width: 300px;
+   }
+   #chatControls>input{
+     width: 80%;
+     height: 30px;
+    border-radius: 20px;
+    padding: 10px;
+   }
+   #chatControls>button{
+     width: 15%;
+     border-radius: 30px;
+    height: 30px;
+    border: none;
+    background-color: #2196F3;
+   }
+   #chatControls>button>i{
+     color: white;
+   }
+
+    .currentUser{
+      background-color:#32cd7169;
+      color: black;
+      width: 70%;
+      float: left;
+      border-radius: 8px;
+      padding: 0 10px;
+      word-break: break-all;
+
+    }
+    .others{
+      background-color: yellowgreen;
+      color: black;
+      width: 70%;
+      float: right;
+      border-radius: 8px;
+      padding: 0 10px;
+      word-break: break-all;
+
+    }
+    #messageTime{
+      float: right;
+    }
+  </style>
 </head>
+
 <body>
-  <div id="output">
+  <div class="header">
+    <p>
+      Realtime Chat using WebSockets.
+    </p>
+  </div>
+  <div class="chatBody">
+    <div id="output">
     </div>
     <div id="chatControls">
-        <input type="text" placeholder="Your Message here" id="text">
-        <button onclick="sendText()">Send</button>
+      <input type="text" placeholder="Your Message here" id="text" autofocus>
+      <button onclick="sendText()"><i class="fa fa-paper-plane" aria-hidden="true"></i>
+      </button>
     </div>
-  
+  </div>
+
+
+  <script>
+    var name = prompt("whats your name? ");
+    var HOST = location.origin.replace(/^http/, 'ws');
+    var sock = new WebSocket(HOST);
+    var input = document.getElementById("text");
+
+    var log = document.getElementById('output');
+    var messageBody = document.querySelector('#output');
+
+    input.addEventListener("keyup", function (event) {
+      event.preventDefault();
+      if (event.keyCode === 13) {
+        sendText();
+      }
+    });
+
+    sock.onopen = function () {
+      sock.send(JSON.stringify({
+        type: 'name',
+        data: name
+      }));
+    };
+
+    sock.onmessage = function (event) {
+
+      console.log(event);
+      var json = JSON.parse(event.data);
+
+      log.innerHTML += `<p class="others">
+        <span id="senderName">${json.name} : </span>
+        <span id="messageRecieved">${json.data}</span> 
+        <span id= "messageTime">${json.time}</span>
+        </p>`;
+      messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight;
+
+    };
+
+    function sendText() {
+      var d = new Date();
+      var text = document.getElementById('text').value;
+
+      if (text.length > 0) {
+        sock.send(JSON.stringify({
+          type: "message",
+          data: text
+        }));
+        var time = appendZero(d.getHours()) + ":" + appendZero(d.getMinutes());
+        log.innerHTML += `<p class="currentUser">
+      <span>You : </span>
+      <span id="messageSent">${text}</span>
+      <span id="messageTIme">${time}</span>
+      </p>`;
+        messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight;
+        document.getElementById('text').value = '';
+      }
+    };
+
+    function appendZero(val) {
+      if (val < 10) {
+        val = '0' + val;
+      }
+      return val;
+    }
+
+  </script>
 </body>
 
 </html>

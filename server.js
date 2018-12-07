@@ -23,9 +23,12 @@ wss.on('connection', (ws) => {
         console.log("recived: " + message);
         wss.clients.forEach(function e(client) {
             if (client !== ws) {
+                var d = new Date()
                 client.send(JSON.stringify({
                     name: ws.personName,
-                    data: message.data
+                    data: message.data,
+                    time: appendZero(d.getHours()) + ":" + appendZero(d.getMinutes())
+
                 }));
             }
         })
@@ -33,3 +36,9 @@ wss.on('connection', (ws) => {
     });
   ws.on('close', () => console.log('Client disconnected'));
 });
+function appendZero(val) {
+    if (val < 10) {
+      val = '0' + val;
+    }
+    return val;
+  }
