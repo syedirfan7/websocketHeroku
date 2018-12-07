@@ -27,7 +27,7 @@ wss.on('connection', (ws) => {
                 client.send(JSON.stringify({
                     name: ws.personName,
                     data: message.data,
-                    time: appendZero(d.getHours()+5) + ":" + appendZero(d.getMinutes()+30)
+                    time: appendZero(d.getHours()) + ":" + appendZero(d.getMinutes())
                 }));
             }
         })
